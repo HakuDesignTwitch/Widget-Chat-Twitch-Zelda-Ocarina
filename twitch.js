@@ -16,6 +16,7 @@
   if (p.get('comandos') === '1') ajustes.cfgOcultarComandos = false;
   if (p.get('bots') != null) ajustes.cfgBots = p.get('bots');
   if (p.get('avisos') === '0') ajustes.cfgAvisos = false;
+  if (p.get('alertas') != null) ajustes.cfgAlertas = p.get('alertas') || 'ninguna';
   // Textos: txtDonacion, txtBits, txtRaid, txtSubNuevo, txtResub, txtSubRegalada, txtSubsRegaladas, txtSubLinea2
   p.forEach((v, k) => { if (k.startsWith('txt')) ajustes[k] = v; });
   window.dispatchEvent(new CustomEvent('onWidgetLoad', { detail: { fieldData: ajustes } }));

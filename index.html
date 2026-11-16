@@ -46,6 +46,26 @@
     width: 100%; padding: 10px 12px; font: inherit;
     background: #15100c; color: var(--texto); border: 1px solid #5a4832; border-radius: 8px;
   }
+  .alertas { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; margin: 12px 0; }
+  .alerta { display: flex; flex-direction: column; border: 2px solid var(--oro); border-radius: 10px; overflow: hidden; background: #15100c; transition: opacity .2s, border-color .2s; }
+  .alerta .toggle {
+    all: unset; cursor: pointer; display: flex; flex-direction: column; gap: 6px; padding: 10px;
+  }
+  .alerta .toggle:focus-visible { outline: 2px solid var(--oro); outline-offset: -4px; }
+  .alerta img, .alerta .img-bits { display: block; width: 100%; height: 60px; object-fit: contain; transition: filter .2s; }
+  .alerta .img-bits { background: url("img/Gema 100.png") center / contain no-repeat, url("img/Bits - Fondo.png") center / contain no-repeat; }
+  .alerta:not(.on) .img-bits { filter: grayscale(1) brightness(.5); }
+  .alerta .toggle span { font-weight: 700; color: var(--texto); font-size: 15px; display: flex; justify-content: space-between; gap: 6px; }
+  .alerta em { font-style: normal; color: var(--oro); font-weight: 400; }
+  .alerta:not(.on) { border-color: #4a3b2a; }
+  .alerta:not(.on) img, .alerta:not(.on) .img-bits { opacity: .35; }
+  .alerta:not(.on) img { filter: grayscale(1) brightness(.5); }
+  .alerta:not(.on) em { color: var(--suave); }
+  .alerta .ver {
+    padding: 6px; border-radius: 0; font-size: 14px;
+    background: transparent; color: var(--oro); border-top: 1px solid #4a3b2a;
+  }
+  .alerta .ver:hover { background: rgba(227, 185, 85, .12); }
   .vista { margin-top: 12px; height: 420px; border-radius: 8px; overflow: hidden;
            background: #3a2e22 url("img/Prueba - Fondo.png") center / cover; }
   .vista iframe { width: 100%; height: 100%; border: 0; }
@@ -78,7 +98,36 @@
   </section>
 
   <section class="paso">
-    <h2><span>2.</span> Copia tu enlace</h2>
+    <h2><span>2.</span> Elige tus alertas</h2>
+    <p class="nota">Pulsa una tarjeta para encenderla o apagarla. Si ya tienes alertas tuyas para algo (por ejemplo donaciones), apágala aquí para que no salgan dobles. Si las apagas todas, solo sale el chat.</p>
+    <div class="alertas" id="alertas">
+      <div class="alerta on" data-tipo="follow">
+        <button class="toggle" aria-pressed="true"><img src="img/Follower - Fondo.png" alt="Alerta de nuevo seguidor"><span>Follow <em></em></span></button>
+        <button class="ver" data-ver="follow">Ver</button>
+      </div>
+      <div class="alerta on" data-tipo="sub">
+        <button class="toggle" aria-pressed="true"><img src="img/Sub.png" alt="Alerta de sub"><span>Subs, resubs y regaladas <em></em></span></button>
+        <button class="ver" data-ver="sub">Ver</button>
+      </div>
+      <div class="alerta on" data-tipo="bits">
+        <button class="toggle" aria-pressed="true"><i class="img-bits" role="img" aria-label="Alerta de bits"></i><span>Bits <em></em></span></button>
+        <button class="ver" data-ver="bits">Ver</button>
+      </div>
+      <div class="alerta on" data-tipo="raid">
+        <button class="toggle" aria-pressed="true"><img src="img/New Raid - Fondo.png" alt="Alerta de raid"><span>Raid <em></em></span></button>
+        <button class="ver" data-ver="raid">Ver</button>
+      </div>
+      <div class="alerta on" data-tipo="donacion">
+        <button class="toggle" aria-pressed="true"><img src="img/Donation - Fondo.png" alt="Alerta de donación"><span>Donación <em></em></span></button>
+        <button class="ver" data-ver="donacion">Ver</button>
+      </div>
+    </div>
+    <p class="nota">Follow y donación solo llegan si conectas StreamElements (opción de arriba). Con "Ver" puedes verlas igualmente.</p>
+    <div class="vista"><iframe id="vista" title="Vista previa del widget"></iframe></div>
+  </section>
+
+  <section class="paso">
+    <h2><span>3.</span> Copia tu enlace</h2>
     <div class="enlace">
       <code id="enlace">Escribe tu canal arriba</code>
       <button id="copiar" disabled>Copiar</button>
@@ -86,35 +135,45 @@
   </section>
 
   <section class="paso">
-    <h2><span>3.</span> Pégalo en OBS</h2>
+    <h2><span>4.</span> Pégalo en OBS</h2>
     <ol>
       <li>En OBS, en <b>Fuentes</b>, pulsa <b>+</b> y elige <b>Navegador</b>.</li>
       <li>En <b>URL</b> pega el enlace.</li>
       <li>Pon <b>Ancho 1920</b> y <b>Alto 1080</b> y pulsa <b>Aceptar</b>.</li>
     </ol>
-    <p class="nota">Funciona: chat, subs, subs regaladas, bits y raids. Para probarlo (o enseñárselo a tu chat en directo), escribe en tu chat de Twitch:</p>
+    <p class="nota">Para probarlo (o enseñárselo a tu chat en directo), escribe en tu chat de Twitch:</p>
     <ul class="nota">
       <li><b>!widget</b> → sale una alerta de cada diseño, una detrás de otra.</li>
       <li><b>!widget follow</b>, <b>!widget sub</b>, <b>!widget resub</b>, <b>!widget regalo</b>, <b>!widget bits</b>, <b>!widget raid</b>, <b>!widget donacion</b> → solo esa.</li>
     </ul>
-    <p class="nota">Solo funciona si lo escribes tú o un mod de tu canal.</p>
-  </section>
-
-  <section class="paso">
-    <h2>Vista previa</h2>
-    <div class="vista"><iframe id="vista" title="Vista previa del widget"></iframe></div>
+    <p class="nota">Solo funciona si lo escribes tú o un mod de tu canal. Solo salen las alertas que tengas encendidas.</p>
   </section>
 </main>
 <script>
   const $ = id => document.getElementById(id);
   let base;
   try { base = new URL('overlay.html', location.href).href; } catch (e) { base = 'overlay.html'; }
-  let reloj;
+  let reloj, previaActual = '';
+
+  // La vista previa enseña todas las alertas (para poder pulsar "Ver" aunque estén apagadas).
+  function previa(canal) {
+    let url = base + '?canal=' + (canal || 'demo') + '&max=' + $('max').value;
+    if ($('ancho').value !== '560') url += '&ancho=' + $('ancho').value;
+    if (url === previaActual) return;
+    previaActual = url;
+    clearTimeout(reloj);
+    reloj = setTimeout(() => { $('vista').src = url; }, 600);
+  }
 
   function actualizar() {
     $('anchoTxt').textContent = $('ancho').value;
     $('maxTxt').textContent = $('max').value;
+    const encendidas = [...document.querySelectorAll('.alerta.on')].map(a => a.dataset.tipo);
+    document.querySelectorAll('.alerta').forEach(a => {
+      a.querySelector('em').textContent = a.classList.contains('on') ? '✔' : 'apagada';
+    });
     const canal = $('canal').value.trim().toLowerCase().replace(/^.*twitch\.tv\//, '').replace(/[^a-z0-9_]/g, '');
+    previa(canal);
     if (!canal) {
       $('enlace').textContent = 'Escribe tu canal arriba';
       $('copiar').disabled = true;
@@ -123,17 +182,42 @@
     let url = base + '?canal=' + canal;
     if ($('ancho').value !== '560') url += '&ancho=' + $('ancho').value;
     if ($('max').value !== '8') url += '&max=' + $('max').value;
+    if (encendidas.length < 5) url += '&alertas=' + encendidas.join(',');
     const se = $('se').value.trim();
     if (se) url += '&se=' + encodeURIComponent(se);
     // Con clave, el enlace no se enseña entero en pantalla (por si está en directo).
     $('enlace').textContent = se ? url.replace(/&se=.*/, '&se=••••••••') : url;
     $('enlace').dataset.url = url;
     $('copiar').disabled = false;
-    clearTimeout(reloj);
-    reloj = setTimeout(() => { $('vista').src = url; }, 600);
   }
 
   ['canal', 'ancho', 'max', 'se'].forEach(id => $(id).addEventListener('input', actualizar));
+
+  // Tarjetas: encender/apagar y "Ver" (lanza la alerta en la vista previa).
+  const ejemplos = {
+    follow: ['follower-latest', { name: 'Nickname' }],
+    sub: ['subscriber-latest', { name: 'Nickname', amount: 1 }],
+    bits: ['cheer-latest', { name: 'Nickname', amount: 1000 }],
+    raid: ['raid-latest', { name: 'Nickname', amount: 23 }],
+    donacion: ['tip-latest', { name: 'Nickname', amount: 5 }]
+  };
+  $('alertas').addEventListener('click', e => {
+    const tarjeta = e.target.closest('.alerta');
+    if (!tarjeta) return;
+    if (e.target.closest('.ver')) {
+      const [listener, event] = ejemplos[tarjeta.dataset.tipo];
+      try {
+        $('vista').contentWindow.dispatchEvent(new CustomEvent('onEventReceived', { detail: { listener, event } }));
+      } catch (err) {}
+      return;
+    }
+    if (e.target.closest('.toggle')) {
+      const on = tarjeta.classList.toggle('on');
+      tarjeta.querySelector('.toggle').setAttribute('aria-pressed', on);
+      actualizar();
+    }
+  });
+  actualizar();
   $('copiar').addEventListener('click', () => {
     const texto = $('enlace').dataset.url || $('enlace').textContent;
     const hecho = () => {

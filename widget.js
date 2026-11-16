@@ -11,6 +11,7 @@ const cfg = {
   cfgOcultarComandos: true,
   cfgBots: 'streamelements, nightbot',
   cfgAvisos: true,
+  cfgAlertas: '', // vacío = todas; si no, lista: follow,sub,bits,raid,donacion (o 'ninguna')
   txtDonacion: '{nombre} nos da {cantidad} rupias',
   txtBits: '{cantidad} bits',
   txtRaid: '{nombre} nos trae a {cantidad} aventureros',
@@ -277,6 +278,9 @@ window.addEventListener('onEventReceived', obj => {
   }
 
   if (!cfg.cfgAvisos) return;
+  // Solo las alertas que el streamer ha elegido.
+  const tipo = { 'follower-latest': 'follow', 'subscriber-latest': 'sub', 'cheer-latest': 'bits', 'raid-latest': 'raid', 'tip-latest': 'donacion' }[listener];
+  if (cfg.cfgAlertas && tipo && !String(cfg.cfgAlertas).split(',').includes(tipo)) return;
   if (listener === 'follower-latest') return follower(ev.name);
   if (listener === 'subscriber-latest') return suscripcion(ev);
   if (listener === 'cheer-latest') return bits(ev.name, ev.amount);
