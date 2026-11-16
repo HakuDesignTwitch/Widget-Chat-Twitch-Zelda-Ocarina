@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prueba widget aventura</title>
+<link rel="stylesheet" href="widget.css">
+<style>
+  /* Solo para esta página de prueba: en OBS el fondo es transparente. */
+  html body { margin: 0; min-height: 100vh; background: #2b2b2b url("img/Prueba - Fondo.png") center / cover fixed; }
+  .botones {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+    display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 12px;
+    background: rgba(0, 0, 0, .45);
+  }
+  .botones button {
+    padding: 6px 10px; border: 1px solid #e3b955; border-radius: 6px;
+    background: transparent; color: #e3b955; font: 14px Calibri, Arial, sans-serif; cursor: pointer;
+  }
+  .botones button:hover { background: rgba(227, 185, 85, .15); }
+  html, body { overflow: auto; }
+  .marco { position: fixed; top: 60px; left: 16px; bottom: 16px; width: 600px; }
+</style>
+</head>
+<body>
+<div class="botones">
+  <button data-p="mensaje">Mensaje</button>
+  <button data-p="corto">Mensaje corto</button>
+  <button data-p="largo">Nombre largo</button>
+  <button data-p="follower">Follower</button>
+  <button data-p="sub">Sub</button>
+  <button data-p="resub">Resub</button>
+  <button data-p="regalo">Subs regaladas</button>
+  <button data-p="bits">Bits</button>
+  <button data-p="raid">Raid</button>
+  <button data-p="tip">Donación</button>
+  <button data-p="vaciar">Vaciar</button>
+</div>
+
+<div class="marco"><div id="chat"></div></div>
+
+<script src="widget.js"></script>
+<script>
+  // Simulador: imita lo que StreamElements le manda al widget.
+  let n = 0;
+  const enviar = (listener, event) =>
+    window.dispatchEvent(new CustomEvent('onEventReceived', { detail: { listener, event } }));
+  const msg = (nombre, text) => enviar('message', { data: {
+    displayName: nombre, nick: nombre.toLowerCase(), text, msgId: 'm' + (++n), userId: nombre, badges: [], emotes: []
+  } });
+
+  const pruebas = {
+    mensaje: () => msg('Nickname', '¡Buenas noches, aventureros! Acabo de llegar del trabajo ¿Has encontrado la mazmorra o seguimos dando vueltas por el mapa?'),
+    corto: () => msg('Nickname', '¡Buenas! ¿Hoy toca mazmorra?'),
+    largo: () => msg('UnNombreDeUsuarioMuyLargo25', 'Los nombres largos encogen para caber en la etiqueta.'),
+    follower: () => enviar('follower-latest', { name: 'Nickname' }),
+    sub: () => enviar('subscriber-latest', { name: 'Nickname', amount: 1 }),
+    resub: () => enviar('subscriber-latest', { name: 'Nickname', amount: 11 }),
+    regalo: () => enviar('subscriber-latest', { name: 'Nickname', amount: 5, bulkGifted: true, sender: 'Nickname' }),
+    bits: () => enviar('cheer-latest', { name: 'Nickname', amount: 100 }),
+    raid: () => enviar('raid-latest', { name: 'Nickname', amount: 23 }),
+    tip: () => enviar('tip-latest', { name: 'Nickname', amount: 5 }),
+    vaciar: () => { document.getElementById('chat').innerHTML = ''; }
+  };
+
+  document.querySelector('.botones').addEventListener('click', e => {
+    const p = e.target.dataset.p;
+    if (p) pruebas[p]();
+  });
+
+  const ancho = Number(new URLSearchParams(location.search).get('ancho')) || 560;
+  window.dispatchEvent(new CustomEvent('onWidgetLoad', { detail: { fieldData: { cfgAncho: ancho } } }));
+  ['mensaje', 'corto', 'tip'].forEach(p => pruebas[p]());
+</script>
+</body>
+</html>

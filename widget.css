@@ -1,0 +1,178 @@
+/* Widget de chat estilo aventura (dibujos de Haku).
+   Todas las medidas salen del tamaño real de cada PNG, así el widget
+   se puede hacer más grande o más pequeño sin que nada se descoloque. */
+
+/* En StreamElements/OBS el chat se apoya abajo: lo nuevo siempre se ve
+   y lo viejo sale por arriba, aunque la caja del widget sea baja. */
+html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; }
+#chat {
+  position: absolute; left: 0; bottom: 0;
+  --w: 560px;                 /* ancho del widget (se cambia desde los ajustes) */
+  width: var(--w);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--w) * 0.014);
+  font-family: Calibri, Carlito, 'Segoe UI', Arial, sans-serif;
+  font-weight: 400;
+}
+
+.item { position: relative; animation: entra .4s cubic-bezier(.2, .8, .3, 1) both; }
+.item.sale { animation: sale .4s ease-in forwards; }
+
+@keyframes entra { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: none; } }
+@keyframes sale  { to { opacity: 0; transform: translateX(-24px); } }
+
+/* ---------- Mensaje de chat (Chat - Fondo.png: 1733 x 438) ---------- */
+.msg {
+  --u: calc(var(--w) / 1733);
+  box-sizing: border-box;
+  width: 100%;
+  border-style: solid;
+  border-width: calc(160 * var(--u)) calc(60 * var(--u)) calc(60 * var(--u)) calc(60 * var(--u));
+  border-image-source: var(--img-chat);
+  border-image-slice: 160 60 60 60 fill;
+  border-image-repeat: stretch;
+  padding: calc(18 * var(--u)) calc(70 * var(--u)) calc(8 * var(--u)) calc(43 * var(--u));
+  color: #fff;
+  font-size: calc(64 * var(--u));
+  line-height: calc(65 * var(--u));
+  overflow-wrap: anywhere;
+  /* Como en el vídeo de Haku: sube desde abajo mientras aparece. */
+  animation: subeChat .55s cubic-bezier(.2, .7, .3, 1) both;
+}
+.msg.sale { animation: sale .4s ease-in forwards; }
+@keyframes subeChat {
+  from { opacity: 0; transform: translate(calc(var(--w) * .02), calc(var(--w) * .15)); }
+  to   { opacity: 1; transform: none; }
+}
+.msg .nombre {
+  position: absolute;
+  left: calc(68 * var(--u));
+  top: calc(-140 * var(--u));
+  width: calc(602 * var(--u));
+  height: calc(135 * var(--u));
+  display: flex; align-items: center; justify-content: center;
+  color: #111;
+  font-size: calc(var(--fn, 80) * var(--u));
+  white-space: nowrap; overflow: hidden;
+  animation: etiqueta .5s .1s cubic-bezier(.3, 1.6, .5, 1) both;
+}
+@keyframes etiqueta { from { transform: translateY(30%) scale(.9); opacity: 0; } }
+.msg .rombo {
+  display: inline-block;
+  width: calc(48 * var(--u));
+  height: calc(46 * var(--u));
+  margin: 0 calc(29 * var(--u)) 0 calc(30 * var(--u));
+  vertical-align: calc(-4 * var(--u));
+  background: var(--img-rombo) no-repeat;
+  background-size: calc(1733 * var(--u)) calc(438 * var(--u));
+  background-position: calc(-133 * var(--u)) calc(-187 * var(--u));
+  animation: gira .6s .15s ease-out both;
+}
+@keyframes gira { from { transform: rotate(-180deg) scale(0); } }
+.msg .emote { height: calc(84 * var(--u)); vertical-align: middle; margin: calc(-10 * var(--u)) 0; }
+
+/* ---------- Donación (Donation - Fondo.png: 1769 x 696) ---------- */
+.papiro {
+  --u: calc(var(--w) / 1769);
+  width: 100%;
+  aspect-ratio: 1769 / 696;
+  animation: none;
+}
+.papiro canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.papiro .linea {
+  position: absolute;
+  left: calc(258 * var(--u)); width: calc(1242 * var(--u));
+  top: calc(395 * var(--u)); height: calc(75 * var(--u));
+  display: flex; align-items: center; justify-content: center;
+  color: #3b2a20;
+  font-size: calc(62 * var(--u));
+  white-space: nowrap;
+  opacity: 0; transition: opacity .5s;
+}
+.papiro.listo .linea { opacity: 1; }
+
+/* ---------- Follower (Follower - Fondo.png: 676 x 95) ---------- */
+.follower {
+  --u: calc(var(--w) / 676);
+  width: 100%;
+  aspect-ratio: 676 / 95;
+  background: var(--img-follower) 0 0 / 100% 100% no-repeat;
+  animation: barrido .6s cubic-bezier(.3, .8, .3, 1) both;
+}
+@keyframes barrido { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+.follower span {
+  /* bottom 9: sube el nick para que comparta línea con "NEW FOLLOWER -" del dibujo */
+  position: absolute; left: calc(402 * var(--u)); right: calc(30 * var(--u)); top: 0; bottom: calc(9 * var(--u));
+  display: flex; align-items: center;
+  color: #e8d4a2; font-weight: 700; font-size: calc(38 * var(--u));
+  white-space: nowrap; overflow: hidden;
+}
+
+/* ---------- Raid (New Raid - Fondo.png: 676 x 156) ---------- */
+.raid {
+  --u: calc(var(--w) / 676);
+  width: 100%;
+  aspect-ratio: 676 / 156;
+  background: var(--img-raid) 0 0 / 100% 100% no-repeat;
+  animation: salto .6s cubic-bezier(.3, 1.5, .5, 1) both;
+}
+@keyframes salto { from { opacity: 0; transform: scale(.6); } }
+.raid span {
+  position: absolute; left: 0; right: 0; top: calc(92 * var(--u)); height: calc(40 * var(--u));
+  display: flex; align-items: center; justify-content: center;
+  color: #fff8e6; font-size: calc(30 * var(--u)); white-space: nowrap;
+}
+
+/* ---------- Bits (Bits - Fondo.png + Bits - Gema.png: 689 x 104) ---------- */
+.bits {
+  --u: calc(var(--w) / 689);
+  width: 100%;
+  aspect-ratio: 689 / 104;
+  background: var(--img-bits) 0 0 / 100% 100% no-repeat;
+}
+/* La gema va pegada al nick: se recorta del PNG (que mide como la barra) y se centra con el texto. */
+.bits .gema {
+  flex: none;
+  width: calc(52 * var(--u)); height: calc(70 * var(--u));
+  margin-right: calc(10 * var(--u));
+  background: var(--img-gema) no-repeat;
+  background-size: calc(689 * var(--u)) calc(104 * var(--u));
+  background-position: calc(-109 * var(--u)) calc(-14 * var(--u));
+  animation: brilla .9s .2s ease-out both;
+}
+@keyframes brilla {
+  0%   { transform: scale(0) rotate(-90deg); filter: var(--tono,) brightness(2.5); }
+  60%  { transform: scale(1.25) rotate(8deg); filter: var(--tono,) brightness(1.6); }
+  100% { transform: none; filter: var(--tono, none); }
+}
+.bits > span {
+  position: absolute; left: calc(30 * var(--u)); right: calc(30 * var(--u)); top: 0; bottom: 0;
+  display: flex; align-items: center; justify-content: center; gap: .25em;
+  color: #fdf6e3; font-weight: 700; font-size: calc(46 * var(--u)); white-space: nowrap;
+}
+.bits b { color: var(--col-bits, #b05cff); }
+
+/* ---------- Sub (Sub.png: 1695 x 420) ---------- */
+.sub {
+  --u: calc(var(--w) / 1695);
+  width: 100%;
+  aspect-ratio: 1695 / 420;
+  background: var(--img-sub) 0 0 / 100% 100% no-repeat;
+}
+.sub .num {
+  position: absolute; left: calc(30 * var(--u)); width: calc(235 * var(--u));
+  top: calc(50 * var(--u)); height: calc(210 * var(--u));
+  display: flex; align-items: center; justify-content: center;
+  color: #fdf6e3; font-weight: 700; font-size: calc(var(--fs, 190) * var(--u));
+  animation: cae .6s .2s cubic-bezier(.3, 1.6, .5, 1) both;
+}
+@keyframes cae { from { opacity: 0; transform: translateY(-40%); } }
+.sub .lineas {
+  position: absolute; left: calc(280 * var(--u)); right: calc(60 * var(--u));
+  top: calc(45 * var(--u)); bottom: calc(85 * var(--u));
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: #fdf6e3; text-align: center; line-height: 1.12;
+}
+.sub .l1 { font-size: calc(74 * var(--u)); }
+.sub .l2 { font-size: calc(50 * var(--u)); }

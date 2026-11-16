@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Widget aventura para Twitch</title>
+<style>
+  :root { --oro: #e3b955; --fondo: #1d1712; --tarjeta: #2a2119; --texto: #f3e7cc; --suave: #b9a882; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: var(--fondo); color: var(--texto);
+    font: 17px/1.5 Calibri, Carlito, 'Segoe UI', Arial, sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { color: var(--oro); font-size: 32px; margin: 0 0 4px; }
+  .sub { color: var(--suave); margin: 0 0 28px; }
+  .paso { background: var(--tarjeta); border: 1px solid #4a3b2a; border-radius: 12px; padding: 18px 20px; margin-bottom: 16px; }
+  .paso h2 { margin: 0 0 10px; font-size: 20px; }
+  .paso h2 span { color: var(--oro); }
+  label { display: block; margin: 10px 0 4px; color: var(--suave); }
+  input[type=text] {
+    width: 100%; padding: 10px 12px; font: inherit; font-size: 20px;
+    background: #15100c; color: var(--texto); border: 1px solid #5a4832; border-radius: 8px;
+  }
+  input[type=text]:focus { outline: 2px solid var(--oro); border-color: transparent; }
+  .fila { display: flex; gap: 16px; flex-wrap: wrap; }
+  .fila > div { flex: 1 1 200px; }
+  input[type=range] { width: 100%; accent-color: var(--oro); }
+  .enlace { display: flex; gap: 8px; flex-wrap: wrap; }
+  .enlace code {
+    flex: 1 1 300px; padding: 10px 12px; background: #15100c; border: 1px dashed var(--oro);
+    border-radius: 8px; word-break: break-all; font-size: 15px;
+  }
+  button {
+    padding: 10px 18px; font: inherit; font-weight: 700; cursor: pointer;
+    background: var(--oro); color: #1d1712; border: 0; border-radius: 8px;
+  }
+  button:disabled { opacity: .4; cursor: default; }
+  ol { margin: 0; padding-left: 22px; }
+  li { margin: 4px 0; }
+  b { color: var(--oro); font-weight: 700; }
+  .nota { color: var(--suave); font-size: 15px; }
+  details { margin-top: 14px; }
+  summary { cursor: pointer; color: var(--oro); }
+  input[type=password] {
+    width: 100%; padding: 10px 12px; font: inherit;
+    background: #15100c; color: var(--texto); border: 1px solid #5a4832; border-radius: 8px;
+  }
+  .vista { margin-top: 12px; height: 420px; border-radius: 8px; overflow: hidden;
+           background: #3a2e22 url("img/Prueba - Fondo.png") center / cover; }
+  .vista iframe { width: 100%; height: 100%; border: 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Widget aventura</h1>
+  <p class="sub">Chat y alertas animadas para Twitch. Gratis. Solo tienes que copiar un enlace.</p>
+
+  <section class="paso">
+    <h2><span>1.</span> Escribe el nombre de tu canal</h2>
+    <input type="text" id="canal" placeholder="tu_canal" autocomplete="off" spellcheck="false">
+    <div class="fila">
+      <div>
+        <label for="ancho">Tamaño: <span id="anchoTxt">560</span> px</label>
+        <input type="range" id="ancho" min="300" max="1200" step="10" value="560">
+      </div>
+      <div>
+        <label for="max">Mensajes en pantalla: <span id="maxTxt">8</span></label>
+        <input type="range" id="max" min="1" max="20" step="1" value="8">
+      </div>
+    </div>
+    <details>
+      <summary>Opcional: conectar con StreamElements (follows, donaciones y botón Emulate)</summary>
+      <label for="se">Tu JWT Token de StreamElements (en StreamElements: tu avatar → Account → Channels → Show secrets)</label>
+      <input type="password" id="se" placeholder="pega aquí tu JWT Token" autocomplete="off" spellcheck="false">
+      <p class="nota">Es una clave secreta: el enlace que se genere con ella no se lo pases a nadie ni lo enseñes en directo.</p>
+    </details>
+  </section>
+
+  <section class="paso">
+    <h2><span>2.</span> Copia tu enlace</h2>
+    <div class="enlace">
+      <code id="enlace">Escribe tu canal arriba</code>
+      <button id="copiar" disabled>Copiar</button>
+    </div>
+  </section>
+
+  <section class="paso">
+    <h2><span>3.</span> Pégalo en OBS</h2>
+    <ol>
+      <li>En OBS, en <b>Fuentes</b>, pulsa <b>+</b> y elige <b>Navegador</b>.</li>
+      <li>En <b>URL</b> pega el enlace.</li>
+      <li>Pon <b>Ancho 1920</b> y <b>Alto 1080</b> y pulsa <b>Aceptar</b>.</li>
+    </ol>
+    <p class="nota">Funciona: chat, subs, subs regaladas, bits y raids. Para probarlo (o enseñárselo a tu chat en directo), escribe en tu chat de Twitch:</p>
+    <ul class="nota">
+      <li><b>!widget</b> → sale una alerta de cada diseño, una detrás de otra.</li>
+      <li><b>!widget follow</b>, <b>!widget sub</b>, <b>!widget resub</b>, <b>!widget regalo</b>, <b>!widget bits</b>, <b>!widget raid</b>, <b>!widget donacion</b> → solo esa.</li>
+    </ul>
+    <p class="nota">Solo funciona si lo escribes tú o un mod de tu canal.</p>
+  </section>
+
+  <section class="paso">
+    <h2>Vista previa</h2>
+    <div class="vista"><iframe id="vista" title="Vista previa del widget"></iframe></div>
+  </section>
+</main>
+<script>
+  const $ = id => document.getElementById(id);
+  let base;
+  try { base = new URL('overlay.html', location.href).href; } catch (e) { base = 'overlay.html'; }
+  let reloj;
+
+  function actualizar() {
+    $('anchoTxt').textContent = $('ancho').value;
+    $('maxTxt').textContent = $('max').value;
+    const canal = $('canal').value.trim().toLowerCase().replace(/^.*twitch\.tv\//, '').replace(/[^a-z0-9_]/g, '');
+    if (!canal) {
+      $('enlace').textContent = 'Escribe tu canal arriba';
+      $('copiar').disabled = true;
+      return;
+    }
+    let url = base + '?canal=' + canal;
+    if ($('ancho').value !== '560') url += '&ancho=' + $('ancho').value;
+    if ($('max').value !== '8') url += '&max=' + $('max').value;
+    const se = $('se').value.trim();
+    if (se) url += '&se=' + encodeURIComponent(se);
+    // Con clave, el enlace no se enseña entero en pantalla (por si está en directo).
+    $('enlace').textContent = se ? url.replace(/&se=.*/, '&se=••••••••') : url;
+    $('enlace').dataset.url = url;
+    $('copiar').disabled = false;
+    clearTimeout(reloj);
+    reloj = setTimeout(() => { $('vista').src = url; }, 600);
+  }
+
+  ['canal', 'ancho', 'max', 'se'].forEach(id => $(id).addEventListener('input', actualizar));
+  $('copiar').addEventListener('click', () => {
+    const texto = $('enlace').dataset.url || $('enlace').textContent;
+    const hecho = () => {
+      $('copiar').textContent = '¡Copiado!';
+      setTimeout(() => { $('copiar').textContent = 'Copiar'; }, 1500);
+    };
+    // Plan B por si el navegador no deja usar el portapapeles moderno.
+    const antiguo = () => {
+      const t = document.createElement('textarea');
+      t.value = texto; document.body.append(t); t.select();
+      try { document.execCommand('copy'); hecho(); } catch (e) {}
+      t.remove();
+    };
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(texto).then(hecho, antiguo);
+    else antiguo();
+  });
+</script>
+</body>
+</html>
